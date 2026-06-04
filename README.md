@@ -1,4 +1,4 @@
-# 🎵 BeatForge v2.0
+# 🎵 BeatForge
 
 **A modular, real-time music generator and beat sequencer built with Web Audio API**
 
