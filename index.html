@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BeatForge — Live Music Generator</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="app" aria-label="BeatForge Music Generator">
+  <!-- Header -->
+  <div class="screen-header">
+    <span class="app-title">BeatForge</span>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="icon-btn" id="theme-toggle" title="Toggle theme">🌙</button>
+      <span class="genre-badge" id="genre-display">techno</span>
+    </div>
+  </div>
+
+  <!-- Visualizer -->
+  <div class="viz" id="viz"></div>
+
+  <!-- Beat Pattern Display -->
+  <div style="margin-bottom:8px;">
+    <div class="row-label">kick (click to edit)</div>
+    <div class="beats" id="beats-kick"></div>
+    <div class="row-label" style="margin-top:5px;">snare (click to edit)</div>
+    <div class="beats" id="beats-snare"></div>
+    <div class="row-label" style="margin-top:5px;">hihat (click to edit)</div>
+    <div class="beats" id="beats-hi"></div>
+  </div>
+
+  <!-- Section Buttons -->
+  <div class="section-row">
+    <div class="section-btn" id="s-intro">Intro</div>
+    <div class="section-btn" id="s-groove">Groove</div>
+    <div class="section-btn" id="s-build">Build</div>
+    <div class="section-btn" id="s-drop">Drop</div>
+  </div>
+
+  <!-- Energy Bar -->
+  <div class="energy-bar-wrap">
+    <div class="ctrl-label">Energy Level</div>
+    <div class="energy-track"><div class="energy-fill" id="energy-fill" style="width:30%"></div></div>
+  </div>
+
+  <!-- Controls Grid -->
+  <div class="controls">
+    <div class="ctrl-block">
+      <div class="ctrl-label">BPM (Tempo)</div>
+      <div class="bpm-spinner-container">
+        <button class="bpm-step-btn" id="bpm-minus" title="Decrease tempo">−</button>
+        <input type="number" id="bpm-spinner" class="bpm-input" value="130" min="50" max="220" step="1">
+        <button class="bpm-step-btn" id="bpm-plus" title="Increase tempo">+</button>
+      </div>
+      <div class="ctrl-sub" id="section-val">intro</div>
+    </div>
+    <div class="ctrl-block">
+      <div class="ctrl-label">Key / Scale</div>
+      <div class="ctrl-val" id="key-val">A min</div>
+      <div class="ctrl-sub" id="synth-val">saw + tb303</div>
+    </div>
+  </div>
+
+  <!-- Interactive Section -->
+  <div class="interactive-section">
+    <div>
+      <div class="ctrl-label" style="color: #60a0ff; margin-bottom: 4px;">Rhythm Generator</div>
+      <button class="action-btn btn-blue" id="regen-btn">🎲 Variation Sequence</button>
+    </div>
+    <hr style="border: 0; border-top: 1px solid #22223c; margin: 4px 0;">
+    <div>
+      <div class="ctrl-label" style="color: #a030ff; margin-bottom: 4px;">Offline Audio Exporter</div>
+      <div class="export-row">
+        <select class="duration-sel" id="duration-sel">
+          <option value="10">10 Seconds</option>
+          <option value="20">20 Seconds</option>
+          <option value="30" selected>30 Seconds</option>
+          <option value="60">1 Minute</option>
+          <option value="120">2 Minutes</option>
+        </select>
+        <button class="action-btn btn-purple" id="export-btn">💾 Download WAV</button>
+      </div>
+    </div>
+    <hr style="border: 0; border-top: 1px solid #22223c; margin: 4px 0;">
+    <div>
+      <div class="ctrl-label" style="color: #30ffa0; margin-bottom: 4px;">Preset Manager</div>
+      <div class="preset-row">
+        <input type="text" id="preset-name" class="preset-input" placeholder="Preset name">
+        <button class="action-btn btn-purple" id="save-preset-btn" style="flex: 1;">💾 Save</button>
+        <button class="action-btn btn-blue" id="load-preset-btn" style="flex: 1;">📂 Load</button>
+      </div>
+    </div>
+    <hr style="border: 0; border-top: 1px solid #22223c; margin: 4px 0;">
+    <div>
+      <div class="ctrl-label" style="color: #ffb030; margin-bottom: 4px;">Session Stats</div>
+      <div class="stats-display">
+        <span>Notes: <span id="stat-notes">0</span></span>
+        <span>Time: <span id="stat-time">0s</span></span>
+        <span>Sections: <span id="stat-sections">0</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Note Log -->
+  <div class="note-log" id="note-log">
+    <div class="note-line" style="color:#5050a0;">— ready —</div>
+  </div>
+
+  <!-- Play Controls -->
+  <div class="play-row" style="margin-top:10px;">
+    <select class="genre-sel" id="genre-sel">
+      <option value="techno">Techno</option>
+      <option value="dnb">Drum & Bass</option>
+      <option value="ambient">Ambient</option>
+      <option value="lofi">Lo-Fi</option>
+      <option value="trance">Trance</option>
+      <option value="deep_house">Deep House</option>
+      <option value="synthwave">Synthwave</option>
+      <option value="reggaeton">Reggaeton</option>
+      <option value="garage">Garage</option>
+      <option value="trap">Trap</option>
+      <option value="disco">Disco</option>
+      <option value="dubstep">Dubstep</option>
+      <option value="funk">Funk</option>
+      <option value="drumstep">Drumstep</option>
+      <option value="chill_trap">Chill Trap</option>
+      <option value="minimal">Minimal</option>
+    </select>
+    <button class="play-btn start" id="play-btn">▶ Play</button>
+  </div>
+
+  <!-- MIDI Status -->
+  <div class="midi-status" id="midi-status" style="display:none;">
+    <span style="font-size: 10px; color: #60a060;">🎹 MIDI Connected</span>
+  </div>
+</div>
+
+<!-- Scripts (ES6 modules) -->
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,301 @@
+/* Tablet (600px - 768px) */
+@media (max-width: 768px) {
+  .app {
+    max-width: 100%;
+    padding: 1rem;
+  }
+
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .play-row {
+    flex-direction: column;
+  }
+
+  .viz {
+    height: 50px;
+  }
+}
+
+/* Mobile (480px - 599px) */
+@media (max-width: 599px) {
+  body {
+    padding: 0.5rem;
+  }
+
+  .app {
+    border-radius: 12px;
+    padding: 0.75rem;
+  }
+
+  .screen-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .app-title {
+    font-size: 10px;
+  }
+
+  .genre-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .viz {
+    height: 40px;
+    gap: 4px;
+  }
+
+  .bar {
+    min-height: 2px;
+  }
+
+  .section-row {
+    gap: 6px;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-btn {
+    font-size: 10px;
+    padding: 6px 2px;
+  }
+
+  .controls {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  .ctrl-block {
+    padding: 10px;
+  }
+
+  .ctrl-label {
+    font-size: 9px;
+  }
+
+  .ctrl-val {
+    font-size: 18px;
+  }
+
+  .bpm-spinner-container {
+    padding: 1px 2px;
+  }
+
+  .bpm-input {
+    font-size: 16px;
+  }
+
+  .bpm-step-btn {
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+  }
+
+  .play-row {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .play-btn {
+    padding: 12px;
+    font-size: 13px;
+  }
+
+  .genre-sel {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .interactive-section {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .export-row,
+  .preset-row {
+    gap: 6px;
+  }
+
+  .action-btn {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .duration-sel,
+  .preset-input {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .note-log {
+    height: 80px;
+    font-size: 10px;
+    padding: 8px;
+  }
+
+  .beats {
+    gap: 3px;
+  }
+
+  .beat-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .row-label {
+    font-size: 8px;
+    margin-bottom: 3px;
+  }
+
+  .energy-bar-wrap {
+    padding: 8px 10px;
+  }
+
+  .energy-track {
+    height: 5px;
+  }
+
+  .stats-display {
+    font-size: 11px;
+    gap: 8px;
+  }
+
+  .midi-status {
+    font-size: 9px;
+  }
+}
+
+/* Small Mobile (< 480px) */
+@media (max-width: 479px) {
+  .app {
+    border-radius: 8px;
+    padding: 0.5rem;
+  }
+
+  .app-title {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+  }
+
+  .viz {
+    height: 35px;
+    gap: 2px;
+  }
+
+  .section-row {
+    gap: 4px;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-btn {
+    font-size: 9px;
+    padding: 5px 1px;
+  }
+
+  .interactive-section {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .action-btn {
+    padding: 8px;
+    font-size: 10px;
+  }
+
+  .export-row,
+  .preset-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .duration-sel,
+  .preset-input,
+  .preset-row > .action-btn {
+    flex: 1 !important;
+    width: 100%;
+  }
+
+  .note-log {
+    height: 70px;
+    font-size: 9px;
+    padding: 6px;
+  }
+
+  .stats-display {
+    font-size: 10px;
+    gap: 6px;
+  }
+
+  .beat-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .ctrl-val {
+    font-size: 16px;
+  }
+
+  .bpm-input {
+    font-size: 14px;
+  }
+}
+
+/* Landscape Orientation */
+@media (max-height: 600px) and (orientation: landscape) {
+  .app {
+    padding: 0.75rem;
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+
+  .viz {
+    height: 35px;
+    margin-bottom: 0.5rem;
+  }
+
+  .note-log {
+    height: 60px;
+  }
+
+  .interactive-section {
+    padding: 8px;
+    gap: 6px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white;
+  }
+
+  .app {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .play-btn,
+  .action-btn {
+    display: none;
+  }
+}
+
+/* Dark Mode Preference */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
