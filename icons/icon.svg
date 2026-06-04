@@ -1,0 +1,25 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" fill="#05050a"/>
+  <rect x="80" y="340" width="60" height="92" rx="10" fill="#3030c0">
+    <animate attributeName="height" values="92;180;92" dur="1s" repeatCount="indefinite" />
+    <animate attributeName="y" values="340;252;340" dur="1s" repeatCount="indefinite" />
+  </rect>
+  <rect x="160" y="240" width="60" height="192" rx="10" fill="#6060ff">
+    <animate attributeName="height" values="192;300;192" dur="1.2s" repeatCount="indefinite" />
+    <animate attributeName="y" values="240;132;240" dur="1.2s" repeatCount="indefinite" />
+  </rect>
+  <rect x="240" y="140" width="60" height="292" rx="10" fill="#8030ff">
+    <animate attributeName="height" values="292;100;292" dur="0.8s" repeatCount="indefinite" />
+    <animate attributeName="y" values="140;332;140" dur="0.8s" repeatCount="indefinite" />
+  </rect>
+  <rect x="320" y="280" width="60" height="152" rx="10" fill="#60ff60">
+    <animate attributeName="height" values="152;250;152" dur="1.5s" repeatCount="indefinite" />
+    <animate attributeName="y" values="280;182;280" dur="1.5s" repeatCount="indefinite" />
+  </rect>
+  <rect x="400" y="360" width="60" height="72" rx="10" fill="#ff6060">
+    <animate attributeName="height" values="72;140;72" dur="0.9s" repeatCount="indefinite" />
+    <animate attributeName="y" values="360;292;360" dur="0.9s" repeatCount="indefinite" />
+  </rect>
+  <path d="M120 100 L180 160 L120 220" fill="none" stroke="#e0e0ff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="380" cy="120" r="40" fill="none" stroke="#e0e0ff" stroke-width="15" />
+</svg>
