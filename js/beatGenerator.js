@@ -13,12 +13,18 @@ export class BeatGenerator {
     this.currentGenre = null;
     this.currentSection = 'intro';
     this.energy = 0.3;
+    this.root = 'A';
+    this.scale = 'minor';
+    this.synth1 = 'Saw';
+    this.synth2 = 'TB303';
 
     // Patterns
     this.patterns = {
       kick: [],
       snare: [],
-      hihat: []
+      hihat: [],
+      bass: [],
+      melody: []
     };
 
     // Modifiers
@@ -39,17 +45,23 @@ export class BeatGenerator {
    */
   loadGenre(genreKey, genreConfig) {
     this.currentGenre = genreKey;
-    const [bpm, , , kick, snare, hihat] = genreConfig;
+    const [bpm, root, scale, kick, snare, hihat, synth1, synth2] = genreConfig;
 
     this.patterns.kick = [...kick];
     this.patterns.snare = [...snare];
     this.patterns.hihat = [...hihat];
 
     this.currentBpm = bpm;
+    this.root = root;
+    this.scale = scale;
+    this.synth1 = synth1;
+    this.synth2 = synth2;
     this.transposition = 0;
     this.scaleModifier = null;
     this.bassGrooveStyle = 'standard';
     this.melodyDensity = 0.35;
+
+    this._generateMelodicPatterns();
   }
 
   /**
@@ -126,12 +138,19 @@ export class BeatGenerator {
         this.energy,
         this.step,
         this.bassGrooveStyle,
-        this.transposition
+        this.transposition,
+        this.bassGrooveStyle === 'standard' ? this.patterns.bass[s] : null
       );
     }
 
-    if (Math.random() < this.melodyDensity) {
-      this.audioEngine.playMelodyNote(time, this._genreConfig(), this.currentSection, this.energy);
+    if (this.patterns.melody[s] !== null) {
+      this.audioEngine.playMelodyNote(
+        time,
+        this._genreConfig(),
+        this.currentSection,
+        this.energy,
+        this.patterns.melody[s]
+      );
     }
 
     // Section director
@@ -157,7 +176,14 @@ export class BeatGenerator {
    * Get current genre config from state
    */
   _genreConfig() {
-    return [this.currentBpm, 'A', 'minor', [], [], [], 'Saw', 'TB303'];
+    return [
+      this.currentBpm,
+      this.root,
+      this.scaleModifier || this.scale,
+      [], [], [],
+      this.synth1,
+      this.synth2
+    ];
   }
 
   /**
@@ -168,6 +194,28 @@ export class BeatGenerator {
       this.patterns.kick = [...rhythmArchetype.kick];
       this.patterns.snare = [...rhythmArchetype.snare];
       this.patterns.hihat = [...rhythmArchetype.hihat];
+    }
+    this._generateMelodicPatterns();
+  }
+
+  /**
+   * Generate coherent 8-step patterns for bass and melody
+   */
+  _generateMelodicPatterns() {
+    this.patterns.bass = [];
+    this.patterns.melody = [];
+
+    for (let i = 0; i < 8; i++) {
+      // Bass pattern (indices 0 or 1 of the scale)
+      this.patterns.bass.push(Math.floor(Math.random() * 2));
+
+      // Melody pattern (note index or null)
+      if (Math.random() < this.melodyDensity) {
+        // Pick a random note index (0 to 6 for a standard scale)
+        this.patterns.melody.push(Math.floor(Math.random() * 7));
+      } else {
+        this.patterns.melody.push(null);
+      }
     }
   }
 

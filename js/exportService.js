@@ -11,7 +11,7 @@ export class ExportService {
           return;
         }
 
-        const genreConfig = [beatGenerator.currentBpm, 'A', 'minor', [], [], [], 'Saw', 'TB303'];
+        const genreConfig = beatGenerator._genreConfig();
         const secondsPerBeat = 60 / beatGenerator.currentBpm;
         const sixteenthDuration = 0.25 * secondsPerBeat;
 
@@ -51,11 +51,19 @@ export class ExportService {
               0.5,
               offlineStep,
               beatGenerator.bassGrooveStyle,
-              beatGenerator.transposition
+              beatGenerator.transposition,
+              beatGenerator.bassGrooveStyle === 'standard' ? beatGenerator.patterns.bass[s] : null
             );
           }
-          if (Math.random() < beatGenerator.melodyDensity) {
-            this._playMelodyOffline(offlineCtx, masterGain, offlineTime, genreConfig, 0.5);
+          if (beatGenerator.patterns.melody[s] !== null) {
+            this._playMelodyOffline(
+              offlineCtx,
+              masterGain,
+              offlineTime,
+              genreConfig,
+              0.5,
+              beatGenerator.patterns.melody[s]
+            );
           }
 
           offlineTime += sixteenthDuration;
@@ -217,31 +225,49 @@ export class ExportService {
   }
 
   static _playChordOffline(ctx, masterGain, t, genreConfig, energy) {
-    const notes = [69, 73, 76];
-    notes.forEach(note => {
-      const freq = 440 * Math.pow(2, (note - 69) / 12);
+    const [, root, scale] = genreConfig;
+    // Simple helper to mimic getScaleNotes roughly for offline
+    const base = this._rootToMidi(root) + (3 - 4) * 12;
+    const intervals = scale === 'major' ? [0, 4, 7] : [0, 3, 7];
+
+    intervals.forEach(interval => {
+      const freq = 440 * Math.pow(2, (base + interval - 69) / 12);
       this._playSynthOffline(ctx, masterGain, t, freq, 0.7, 'sawtooth', 0.08 * energy, 700);
     });
   }
 
-  static _playMelodyOffline(ctx, masterGain, t, genreConfig, energy) {
-    const notes = [69, 71, 73, 76];
-    const note = notes[Math.floor(Math.random() * notes.length)];
-    const freq = 440 * Math.pow(2, (note - 69) / 12);
+  static _playMelodyOffline(ctx, masterGain, t, genreConfig, energy, noteIndex = null) {
+    const [, root, scale] = genreConfig;
+    const base = this._rootToMidi(root) + (5 - 4) * 12;
+    const intervals = scale === 'major' ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10];
+
+    const idx = noteIndex !== null ? noteIndex % intervals.length : Math.floor(Math.random() * intervals.length);
+    const freq = 440 * Math.pow(2, (base + intervals[idx] - 69) / 12);
     this._playSynthOffline(ctx, masterGain, t, freq, 0.15, 'sine', 0.15 * energy, 1800);
   }
 
-  static _playBassOffline(ctx, masterGain, t, genreConfig, energy, step, style, transposition) {
-    const notes = [45, 48];
-    let note = notes[0];
-    if (style === 'straight') {
-      note = notes[0];
+  static _playBassOffline(ctx, masterGain, t, genreConfig, energy, step, style, transposition, noteIndex = null) {
+    const [, root, scale] = genreConfig;
+    const base = this._rootToMidi(root) + (2 - 4) * 12 + transposition;
+    const intervals = scale === 'major' ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10];
+
+    let interval;
+    if (noteIndex !== null) {
+      interval = intervals[noteIndex % intervals.length];
+    } else if (style === 'straight') {
+      interval = intervals[0];
     } else if (style === 'walking') {
-      note = notes[step % notes.length];
+      interval = intervals[step % intervals.length];
     } else {
-      note = notes[Math.floor(Math.random() * 2)];
+      interval = intervals[Math.floor(Math.random() * 2)];
     }
-    const freq = 440 * Math.pow(2, (note - 69) / 12);
+
+    const freq = 440 * Math.pow(2, (base + interval - 69) / 12);
     this._playSynthOffline(ctx, masterGain, t, freq, 0.2, 'sawtooth', 0.35 * energy, 450);
+  }
+
+  static _rootToMidi(root) {
+    const roots = { C: 60, D: 62, E: 64, F: 65, G: 67, A: 69, B: 71 };
+    return roots[root] || 60;
   }
 }

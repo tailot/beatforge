@@ -233,10 +233,10 @@ export class AudioEngine {
   /**
    * Melody note generator
    */
-  playMelodyNote(time, genreConfig, section, energy = 0.5) {
+  playMelodyNote(time, genreConfig, section, energy = 0.5, noteIndex = null) {
     const [, root, scale] = genreConfig;
     const notes = this.getScaleNotes(root, scale, 5);
-    const note = notes[Math.floor(Math.random() * notes.length)];
+    const note = noteIndex !== null ? notes[noteIndex % notes.length] : notes[Math.floor(Math.random() * notes.length)];
     const type = section === 'drop' ? 'sawtooth' : 'sine';
 
     this.playSynth(
@@ -252,12 +252,14 @@ export class AudioEngine {
   /**
    * Bassline with style variation
    */
-  playBass(time, genreConfig, energy = 0.5, step = 0, style = 'standard', transposition = 0) {
+  playBass(time, genreConfig, energy = 0.5, step = 0, style = 'standard', transposition = 0, noteIndex = null) {
     const [, root, scale] = genreConfig;
     const notes = this.getScaleNotes(root, scale, 2, transposition);
 
     let note;
-    if (style === 'straight') {
+    if (noteIndex !== null) {
+      note = notes[noteIndex % notes.length];
+    } else if (style === 'straight') {
       note = notes[0];
     } else if (style === 'walking') {
       note = notes[step % notes.length];
