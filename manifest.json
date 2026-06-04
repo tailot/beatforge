@@ -1,0 +1,23 @@
+{
+  "name": "BeatForge",
+  "short_name": "BeatForge",
+  "description": "A modular, real-time music generator and beat sequencer built with Web Audio API",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#05050a",
+  "theme_color": "#3030c0",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
