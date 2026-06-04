@@ -5,6 +5,8 @@ export class UIController {
     this.beatGenerator = beatGenerator;
     this.audioEngine = audioEngine;
     this.vizBars = [];
+    this.vizMode = 'bars';
+    this.animationId = null;
     this.currentGenreKey = 'techno';
     this.sessionStats = {
       notesGenerated: 0,
@@ -15,6 +17,8 @@ export class UIController {
     this._initElements();
     this._attachEventListeners();
     this._setupVisualization();
+
+    window.addEventListener('resize', () => this._resizeCanvas());
   }
 
   _initElements() {
@@ -41,7 +45,8 @@ export class UIController {
       statNotes: document.getElementById('stat-notes'),
       statTime: document.getElementById('stat-time'),
       statSections: document.getElementById('stat-sections'),
-      midiStatus: document.getElementById('midi-status')
+      midiStatus: document.getElementById('midi-status'),
+      vizCanvas: null
     };
 
     ['kick', 'snare', 'hi'].forEach(type => {
@@ -60,6 +65,11 @@ export class UIController {
       this.elements.viz.appendChild(bar);
       this.vizBars.push(bar);
     }
+
+    const canvas = document.createElement('canvas');
+    canvas.className = 'viz-canvas';
+    this.elements.viz.appendChild(canvas);
+    this.elements.vizCanvas = canvas;
 
     ['kick', 'snare', 'hi'].forEach(type => {
       for (let i = 0; i < 8; i++) {
@@ -86,6 +96,7 @@ export class UIController {
     this.elements.themeToggle.addEventListener('click', () => this._toggleTheme());
     this.elements.savePresetBtn.addEventListener('click', () => this._savePreset());
     this.elements.loadPresetBtn.addEventListener('click', () => this._loadPreset());
+    this.elements.viz.addEventListener('click', () => this._toggleVizMode());
 
     ['kick', 'snare', 'hi'].forEach(type => {
       this.elements[`beats${type}`].addEventListener('click', (e) => {
@@ -105,7 +116,6 @@ export class UIController {
     };
     this.beatGenerator.onStepUpdate = (s) => {
       this._updateBeatVisuals();
-      this._updateVisualization();
     };
     this.beatGenerator.onSectionChange = (section, energy) => {
       this.beatGenerator.currentSection = section;
@@ -121,6 +131,7 @@ export class UIController {
 
     if (this.beatGenerator.playing) {
       this.beatGenerator.stop();
+      this._stopAnimation();
       this.elements.playBtn.textContent = '▶ Play';
       this.elements.playBtn.className = 'play-btn start';
       this.vizBars.forEach(bar => {
@@ -130,6 +141,7 @@ export class UIController {
     } else {
       const genreConfig = GENRES[this.currentGenreKey];
       this.beatGenerator.start(this.currentGenreKey, genreConfig);
+      this._startAnimation();
       this.elements.playBtn.textContent = '■ Stop';
       this.elements.playBtn.className = 'play-btn stop';
       this._startSessionTimer();
@@ -215,6 +227,14 @@ export class UIController {
   }
 
   _updateVisualization() {
+    if (this.vizMode === 'bars') {
+      this._renderBars();
+    } else {
+      this._renderSinusoidal();
+    }
+  }
+
+  _renderBars() {
     const freqData = this.audioEngine.getFrequencyData();
     this.vizBars.forEach((bar, i) => {
       const value = freqData[i * 4] || 0;
@@ -223,6 +243,64 @@ export class UIController {
       bar.style.height = h + 'px';
       bar.style.background = `hsl(${hue}, 80%, ${25 + (h / 60) * 30}%)`;
     });
+  }
+
+  _renderSinusoidal() {
+    const canvas = this.elements.vizCanvas;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const freqData = this.audioEngine.getFrequencyData();
+    const width = canvas.width;
+    const height = canvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Create a smooth wave path based on frequency data
+    const points = [];
+    const numPoints = freqData.length / 2;
+    const step = width / (numPoints - 1);
+
+    for (let i = 0; i < numPoints; i++) {
+      const value = freqData[i] || 0;
+      const x = i * step;
+      const y = height / 2 + (value / 255) * (height / 2) * Math.sin(Date.now() * 0.005 + i * 0.5);
+      points.push({ x, y });
+    }
+
+    // Draw multiple layered waves for a richer effect
+    this._drawWave(ctx, points, 'rgba(96, 96, 255, 0.5)', 2);
+
+    const offsetPoints = points.map(p => ({
+      x: p.x,
+      y: height - p.y
+    }));
+    this._drawWave(ctx, offsetPoints, 'rgba(128, 48, 255, 0.3)', 1);
+  }
+
+  _drawWave(ctx, points, color, lineWidth) {
+    if (points.length < 2) return;
+
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    ctx.moveTo(points[0].x, points[0].y);
+
+    for (let i = 1; i < points.length - 2; i++) {
+      const xc = (points[i].x + points[i + 1].x) / 2;
+      const yc = (points[i].y + points[i + 1].y) / 2;
+      ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+    }
+
+    // For the last 2 points
+    if (points.length > 2) {
+      const last = points.length - 1;
+      ctx.quadraticCurveTo(points[last - 1].x, points[last - 1].y, points[last].x, points[last].y);
+    }
+
+    ctx.stroke();
   }
 
   _triggerVariation() {
@@ -266,6 +344,49 @@ export class UIController {
 
   _triggerExport() {
     this.addLog('⚙️ Starting audio export...');
+  }
+
+  _toggleVizMode() {
+    this.vizMode = this.vizMode === 'bars' ? 'sinusoidal' : 'bars';
+
+    if (this.vizMode === 'bars') {
+      this.elements.vizCanvas.style.display = 'none';
+      this.vizBars.forEach(bar => bar.style.display = 'block');
+    } else {
+      this.elements.vizCanvas.style.display = 'block';
+      this.vizBars.forEach(bar => bar.style.display = 'none');
+      this._resizeCanvas();
+    }
+
+    this.addLog(`📊 Viz Mode: ${this.vizMode}`);
+  }
+
+  _resizeCanvas() {
+    if (!this.elements.vizCanvas) return;
+    const canvas = this.elements.vizCanvas;
+    const rect = this.elements.viz.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+  }
+
+  _startAnimation() {
+    if (this.animationId) return;
+
+    const animate = () => {
+      this._updateVisualization();
+      this.animationId = requestAnimationFrame(animate);
+    };
+
+    this.animationId = requestAnimationFrame(animate);
+  }
+
+  _stopAnimation() {
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
   }
 
   _toggleTheme() {
