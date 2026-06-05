@@ -102,8 +102,9 @@ export class UIController {
       this.elements[`beats${type}`].addEventListener('click', (e) => {
         if (e.target.classList.contains('beat-dot')) {
           const index = parseInt(e.target.dataset.index);
-          const currentValue = this.beatGenerator.patterns[type][index];
-          this.beatGenerator.updatePattern(type, index, !currentValue);
+          const patternKey = type === 'hi' ? 'hihat' : type;
+          const currentValue = this.beatGenerator.patterns[patternKey][index];
+          this.beatGenerator.updatePattern(patternKey, index, !currentValue);
           this._updateBeatVisuals();
           this.addLog(`✎ Edited ${type} step ${index}`);
         }
