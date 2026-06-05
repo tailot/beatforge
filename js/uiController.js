@@ -7,6 +7,7 @@ export class UIController {
     this.vizBars = [];
     this.vizMode = 'bars';
     this.animationId = null;
+    this.autoVarTimer = null;
     this.currentGenreKey = 'techno';
     this.sessionStats = {
       notesGenerated: 0,
@@ -46,6 +47,7 @@ export class UIController {
       statTime: document.getElementById('stat-time'),
       statSections: document.getElementById('stat-sections'),
       midiStatus: document.getElementById('midi-status'),
+      varInterval: document.getElementById('var-interval'),
       vizCanvas: null
     };
 
@@ -97,6 +99,12 @@ export class UIController {
     this.elements.savePresetBtn.addEventListener('click', () => this._savePreset());
     this.elements.loadPresetBtn.addEventListener('click', () => this._loadPreset());
     this.elements.viz.addEventListener('click', () => this._toggleVizMode());
+    this.elements.varInterval.addEventListener('change', () => {
+      if (this.beatGenerator.playing) {
+        this._stopAutoVariation();
+        this._startAutoVariation();
+      }
+    });
 
     ['kick', 'snare', 'hi'].forEach(type => {
       this.elements[`beats${type}`].addEventListener('click', (e) => {
@@ -132,6 +140,7 @@ export class UIController {
     if (this.beatGenerator.playing) {
       this.beatGenerator.stop();
       this._stopAnimation();
+      this._stopAutoVariation();
       this.elements.playBtn.textContent = '▶ Play';
       this.elements.playBtn.className = 'play-btn start';
       this.vizBars.forEach(bar => {
@@ -142,9 +151,27 @@ export class UIController {
       const genreConfig = GENRES[this.currentGenreKey];
       this.beatGenerator.start(this.currentGenreKey, genreConfig);
       this._startAnimation();
+      this._startAutoVariation();
       this.elements.playBtn.textContent = '■ Stop';
       this.elements.playBtn.className = 'play-btn stop';
       this._startSessionTimer();
+    }
+  }
+
+  _startAutoVariation() {
+    const interval = parseInt(this.elements.varInterval.value);
+    if (interval > 0) {
+      this.autoVarTimer = setInterval(() => {
+        this._triggerVariation();
+        this.addLog('⏱️ Auto-variation triggered');
+      }, interval * 1000);
+    }
+  }
+
+  _stopAutoVariation() {
+    if (this.autoVarTimer) {
+      clearInterval(this.autoVarTimer);
+      this.autoVarTimer = null;
     }
   }
 
