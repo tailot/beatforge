@@ -118,24 +118,29 @@ export class BeatGenerator {
     const s = stepNumber % 8;
     const delay = (time - this.audioEngine.now()) * 1000;
 
+    // "velocità bassa" for specific genres
+    const isQuietGenre = ['classical', 'rock'].includes(this.currentGenre);
+    const effectiveEnergy = isQuietGenre ? this.energy * 0.6 : this.energy;
+
     // Play drums
     if (this.patterns.kick[s] === 1) this.audioEngine.playKick(time);
     if (this.patterns.snare[s] === 1) this.audioEngine.playSnare(time);
-    if (this.patterns.hihat[s] === 1) this.audioEngine.playHihat(time, this.energy);
+    if (this.patterns.hihat[s] === 1) this.audioEngine.playHihat(time, effectiveEnergy);
 
     // Play synths
     if (s === 0) {
-      this.audioEngine.playChord(time, this._genreConfig(), this.currentSection, this.energy);
+      this.audioEngine.playChord(time, this._genreConfig(), this.currentSection, effectiveEnergy);
       if (this.onSchedule) {
         setTimeout(() => this.onSchedule('chord', s), delay);
       }
     }
 
-    if (s % 2 === 0) {
+    const shouldPlayBass = isQuietGenre ? (this.patterns.bass[s] !== null) : (s % 2 === 0);
+    if (shouldPlayBass) {
       this.audioEngine.playBass(
         time,
         this._genreConfig(),
-        this.energy,
+        effectiveEnergy,
         this.step,
         this.bassGrooveStyle,
         this.transposition,
@@ -148,7 +153,7 @@ export class BeatGenerator {
         time,
         this._genreConfig(),
         this.currentSection,
-        this.energy,
+        effectiveEnergy,
         this.patterns.melody[s]
       );
     }
@@ -202,19 +207,29 @@ export class BeatGenerator {
    * Generate coherent 8-step patterns for bass and melody
    */
   _generateMelodicPatterns() {
-    this.patterns.bass = [];
-    this.patterns.melody = [];
+    this.patterns.bass = Array(8).fill(null);
+    this.patterns.melody = Array(8).fill(null);
 
-    for (let i = 0; i < 8; i++) {
-      // Bass pattern (indices 0 or 1 of the scale)
-      this.patterns.bass.push(Math.floor(Math.random() * 2));
+    if (['classical', 'rock'].includes(this.currentGenre)) {
+      const groupCounts = [2, 3, 4];
+      const count = groupCounts[Math.floor(Math.random() * groupCounts.length)];
+      let steps = [0, 4]; // 2 groups
+      if (count === 3) steps = [0, 3, 6];
+      if (count === 4) steps = [0, 2, 4, 6];
 
-      // Melody pattern (note index or null)
-      if (Math.random() < this.melodyDensity) {
-        // Pick a random note index (0 to 6 for a standard scale)
-        this.patterns.melody.push(Math.floor(Math.random() * 7));
-      } else {
-        this.patterns.melody.push(null);
+      steps.forEach(s => {
+        this.patterns.bass[s] = Math.floor(Math.random() * 2);
+        this.patterns.melody[s] = Math.floor(Math.random() * 7);
+      });
+    } else {
+      for (let i = 0; i < 8; i++) {
+        // Bass pattern (indices 0 or 1 of the scale)
+        this.patterns.bass[i] = Math.floor(Math.random() * 2);
+
+        // Melody pattern (note index or null)
+        if (Math.random() < this.melodyDensity) {
+          this.patterns.melody[i] = Math.floor(Math.random() * 7);
+        }
       }
     }
   }

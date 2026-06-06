@@ -351,7 +351,7 @@ export class UIController {
   }
 
   _getGenreFamily(genreKey) {
-    const slowGenres = ['ambient', 'lofi', 'chill_trap'];
+    const slowGenres = ['ambient', 'lofi', 'chill_trap', 'classical'];
     const fastGenres = ['dnb', 'drumstep', 'dubstep', 'garage', 'trap'];
     const minimalGenres = ['minimal', 'ambient'];
     if (minimalGenres.includes(genreKey)) return 'minimal';
