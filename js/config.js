@@ -97,3 +97,15 @@ export const STORAGE_KEYS = {
   PRESET_PREFIX: 'beatforge-preset-',
   THEME: 'beatforge-theme'
 };
+
+export const VOCAL_DICTIONARY = [
+  'Beat', 'Forge', 'Love', 'Night', 'Fire', 'Light', 'Dream', 'Sky', 'Heart', 'Soul',
+  'Music', 'Dance', 'Life', 'Free', 'Pure', 'Deep', 'High', 'Low', 'Flow', 'Glow',
+  'Sole', 'Luna', 'Cuore', 'Vita', 'Sogno', 'Canto', 'Ritmo', 'Suono', 'Mondo', 'Pace'
+];
+
+export const VOCAL_PARAMS = {
+  DEFAULT_DENSITY: 0.2,
+  MIN_DENSITY: 0.1,
+  MAX_DENSITY: 0.5
+};

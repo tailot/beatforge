@@ -308,4 +308,24 @@ export class AudioEngine {
       this.ctx.suspend();
     }
   }
+
+  /**
+   * Vocal synthesis using Web Speech API
+   */
+  speak(word, freq) {
+    if (!window.speechSynthesis) return;
+
+    // Use a fresh utterance
+    const utterance = new SpeechSynthesisUtterance(word);
+
+    // Map frequency to pitch (0.1 - 2.0 range)
+    // Assuming 220Hz as a baseline for pitch 1.0
+    const baseFreq = 220;
+    utterance.pitch = Math.max(0.1, Math.min(2.0, freq / baseFreq));
+    utterance.rate = 1.2; // Slightly faster to keep up with tempo
+    utterance.volume = 0.7;
+
+    // Note: SpeechSynthesis is not perfectly synced with Web Audio time
+    window.speechSynthesis.speak(utterance);
+  }
 }

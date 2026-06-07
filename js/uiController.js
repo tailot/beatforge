@@ -39,6 +39,7 @@ export class UIController {
       exportBtn: document.getElementById('export-btn'),
       durationSel: document.getElementById('duration-sel'),
       regenBtn: document.getElementById('regen-btn'),
+      vocalToggle: document.getElementById('vocal-toggle'),
       themeToggle: document.getElementById('theme-toggle'),
       presetName: document.getElementById('preset-name'),
       savePresetBtn: document.getElementById('save-preset-btn'),
@@ -95,6 +96,7 @@ export class UIController {
     this.elements.bpmPlus.addEventListener('click', () => this._setBpm(this.beatGenerator.currentBpm + 1));
     this.elements.exportBtn.addEventListener('click', () => this._triggerExport());
     this.elements.regenBtn.addEventListener('click', () => this._triggerVariation());
+    this.elements.vocalToggle.addEventListener('click', () => this._toggleVocal());
     this.elements.themeToggle.addEventListener('click', () => this._toggleTheme());
     this.elements.savePresetBtn.addEventListener('click', () => this._savePreset());
     this.elements.loadPresetBtn.addEventListener('click', () => this._loadPreset());
@@ -119,9 +121,12 @@ export class UIController {
       });
     });
 
-    this.beatGenerator.onSchedule = (type, step) => {
+    this.beatGenerator.onSchedule = (type, step, extra) => {
       this.sessionStats.notesGenerated++;
       this._updateStats();
+      if (type === 'vocal') {
+        this.addLog(`🎤 Sing: "${extra}"`);
+      }
     };
     this.beatGenerator.onStepUpdate = (s) => {
       this._updateBeatVisuals();
@@ -397,6 +402,14 @@ export class UIController {
       canvas.width = rect.width;
       canvas.height = rect.height;
     }
+  }
+
+  _toggleVocal() {
+    const newState = !this.beatGenerator.vocalEnabled;
+    this.beatGenerator.toggleVocal(newState);
+    this.elements.vocalToggle.textContent = `🎤 Auto Vocal: ${newState ? 'ON' : 'OFF'}`;
+    this.elements.vocalToggle.classList.toggle('active', newState);
+    this.addLog(`🎤 Vocal synthesis ${newState ? 'enabled' : 'disabled'}`);
   }
 
   _startAnimation() {

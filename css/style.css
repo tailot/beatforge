@@ -539,6 +539,22 @@ body {
   background: #4040d0;
 }
 
+.btn-vocal {
+  background: #22223c;
+  color: #ffb030;
+  border: 1px solid #ffb030;
+}
+
+.btn-vocal:hover {
+  background: #32325c;
+  box-shadow: 0 0 10px rgba(255, 176, 48, 0.4);
+}
+
+.btn-vocal.active {
+  background: #ffb030;
+  color: #05050a;
+}
+
 /* Stats Display */
 .stats-display {
   display: flex;

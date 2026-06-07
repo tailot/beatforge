@@ -1,4 +1,4 @@
-import { SECTIONS, SECTION_ENERGY, AUDIO_PARAMS } from './config.js';
+import { SECTIONS, SECTION_ENERGY, AUDIO_PARAMS, VOCAL_DICTIONARY, VOCAL_PARAMS } from './config.js';
 
 export class BeatGenerator {
   constructor(audioEngine) {
@@ -24,7 +24,8 @@ export class BeatGenerator {
       snare: [],
       hihat: [],
       bass: [],
-      melody: []
+      melody: [],
+      vocal: []
     };
 
     // Modifiers
@@ -32,6 +33,8 @@ export class BeatGenerator {
     this.scaleModifier = null;
     this.bassGrooveStyle = 'standard';
     this.melodyDensity = 0.35;
+    this.vocalEnabled = false;
+    this.vocalDensity = VOCAL_PARAMS.DEFAULT_DENSITY;
     this.currentBpm = 130;
 
     // Callbacks
@@ -158,6 +161,14 @@ export class BeatGenerator {
       );
     }
 
+    if (this.vocalEnabled && this.patterns.vocal[s] !== null) {
+      const freq = this.audioEngine.noteFreq(this.audioEngine.getScaleNotes(this.root, this.scale, 4)[Math.floor(Math.random() * 7)]);
+      this.audioEngine.speak(this.patterns.vocal[s], freq);
+      if (this.onSchedule) {
+        setTimeout(() => this.onSchedule('vocal', s, this.patterns.vocal[s]), delay);
+      }
+    }
+
     // Section director
     this.directorCount++;
     if (this.directorCount % 32 === 0) {
@@ -209,6 +220,7 @@ export class BeatGenerator {
   _generateMelodicPatterns() {
     this.patterns.bass = Array(8).fill(null);
     this.patterns.melody = Array(8).fill(null);
+    this.patterns.vocal = Array(8).fill(null);
 
     if (['classical', 'rock'].includes(this.currentGenre)) {
       const groupCounts = [2, 3, 4];
@@ -220,6 +232,9 @@ export class BeatGenerator {
       steps.forEach(s => {
         this.patterns.bass[s] = Math.floor(Math.random() * 2);
         this.patterns.melody[s] = Math.floor(Math.random() * 7);
+        if (Math.random() < this.vocalDensity) {
+          this.patterns.vocal[s] = VOCAL_DICTIONARY[Math.floor(Math.random() * VOCAL_DICTIONARY.length)];
+        }
       });
     } else {
       for (let i = 0; i < 8; i++) {
@@ -230,8 +245,20 @@ export class BeatGenerator {
         if (Math.random() < this.melodyDensity) {
           this.patterns.melody[i] = Math.floor(Math.random() * 7);
         }
+
+        // Vocal pattern
+        if (Math.random() < this.vocalDensity) {
+          this.patterns.vocal[i] = VOCAL_DICTIONARY[Math.floor(Math.random() * VOCAL_DICTIONARY.length)];
+        }
       }
     }
+  }
+
+  /**
+   * Toggle automatic vocal singing
+   */
+  toggleVocal(enabled) {
+    this.vocalEnabled = enabled;
   }
 
   /**
